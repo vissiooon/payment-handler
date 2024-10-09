@@ -1,0 +1,23 @@
+{
+  "name": "payment-handler",
+  "version": "1.0.0",
+  "description": "This package is responsible for handling payments",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "stripe": "^17.1.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/TeamDlxx/mailcub.git"
+  },
+  "author": "Team DLX",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TeamDlxx/mailcub/issues"
+  },
+  "homepage": "https://github.com/TeamDlxx/mailcub#readme"
+}
