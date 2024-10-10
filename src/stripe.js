@@ -53,6 +53,16 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
     if (error) {
       return { error: true, message: message, response: null };
     }
+    let initial_amount;
+    if (body.trial_period_days <= 0) {
+      //%%
+      initial_amount =
+        parseInt(body.initial_amount, 10) - body.installment_amount;
+      initial_amount = Math.abs(initial_amount);
+    } else {
+      initial_amount = body.initial_amount;
+    }
+    let unit_amount = body.unit_amount / body.interval_count;
     const { product, recurringPrice, oneTimePrice } = await new Promise(
       (resolve, reject) => {
         // Create the product first
@@ -67,8 +77,8 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
               return reject(err);
             }
 
-            let recurringAmount = Math.round(body.unit_amount * 100);
-            let oneTimeAmount = Math.round(body.one_time_amount * 100); // Assuming one_time_amount is defined
+            let recurringAmount = Math.round(unit_amount * 100);
+            let oneTimeAmount = Math.round(initial_amount * 100); // Assuming one_time_amount is defined
 
             // Create both prices in parallel
             Promise.all([
@@ -259,6 +269,8 @@ const CREATE_RECURRING_FIXED_SUBSCRIPTION_ON_STRIPE = async (
   if (error) {
     return { error: true, message: message, response: null };
   }
+
+  let unit_amount = body.unit_amount / body.interval_count;
   try {
     const stripe = require("stripe")(stripe_secret_key);
     // Step 1: Create a Stripe product
@@ -281,7 +293,7 @@ const CREATE_RECURRING_FIXED_SUBSCRIPTION_ON_STRIPE = async (
 
     // Step 2: Create a Stripe price for the product
 
-    let amount = Math.round(body.unit_amount * 100);
+    let amount = Math.round(unit_amount * 100);
 
     const price = await new Promise((resolve, reject) => {
       stripe.prices.create(
