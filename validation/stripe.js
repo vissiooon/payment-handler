@@ -8,8 +8,13 @@ const validateCustomerBody = (body) => {
   const { error } = schema.validate(body);
   if (error) {
     return {
-      error: false,
+      error: true,
       message: error.details[0].message,
+    };
+  } else {
+    return {
+      error: false,
+      message: "Validated",
     };
   }
 };
@@ -31,8 +36,13 @@ const validateInstallment = (body) => {
   const { error } = schema.validate(body);
   if (error) {
     return {
-      error: false,
+      error: true,
       message: error.details[0].message,
+    };
+  } else {
+    return {
+      error: false,
+      message: "Validated",
     };
   }
 };
@@ -52,8 +62,13 @@ const validateRecurringBasic = (body) => {
   const { error } = schema.validate(body);
   if (error) {
     return {
-      error: false,
+      error: true,
       message: error.details[0].message,
+    };
+  } else {
+    return {
+      error: false,
+      message: "Validated",
     };
   }
 };
@@ -73,8 +88,13 @@ const validateRecurringFixed = (body) => {
   const { error } = schema.validate(body);
   if (error) {
     return {
-      error: false,
+      error: true,
       message: error.details[0].message,
+    };
+  } else {
+    return {
+      error: false,
+      message: "Validated",
     };
   }
 };
@@ -86,8 +106,13 @@ const validateRetrieveInvoice = (body) => {
   const { error } = schema.validate(body);
   if (error) {
     return {
-      error: false,
+      error: true,
       message: error.details[0].message,
+    };
+  } else {
+    return {
+      error: false,
+      message: "Validated",
     };
   }
 };
@@ -99,8 +124,13 @@ const validateRetrievePaymentIntent = (body) => {
   const { error } = schema.validate(body);
   if (error) {
     return {
-      error: false,
+      error: true,
       message: error.details[0].message,
+    };
+  } else {
+    return {
+      error: false,
+      message: "Validated",
     };
   }
 };
@@ -118,8 +148,13 @@ const validateOneTimePayment = (body) => {
   const { error } = schema.validate(body);
   if (error) {
     return {
-      error: false,
+      error: true,
       message: error.details[0].message,
+    };
+  } else {
+    return {
+      error: false,
+      message: "Validated",
     };
   }
 };
@@ -131,8 +166,13 @@ const validateRetrieveCustomerCard = (body) => {
   const { error } = schema.validate(body);
   if (error) {
     return {
-      error: false,
+      error: true,
       message: error.details[0].message,
+    };
+  } else {
+    return {
+      error: false,
+      message: "Validated",
     };
   }
 };

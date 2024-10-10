@@ -200,7 +200,7 @@ async function CREATE_RECURRING_BASIC_SUBSCRIPTION_ON_STRIPE(
           amount: body.unit_amount * 100,
           currency: body.currency,
           interval: body.interval_time,
-          product: body.product.id,
+          product: product.id,
           interval_count: body.interval_count,
         },
         (err, price) => {
