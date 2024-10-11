@@ -53,8 +53,19 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
     if (error) {
       return { error: true, message: message, response: null };
     }
+    const customer = await stripe.customers.retrieve(body.customer_id);
+    let defaultCard;
+    const defaultCardId = customer.default_source;
+    if (defaultCardId) {
+      defaultCard = await stripe.customers.retrieveSource(
+        body.customer_id,
+        defaultCardId
+      );
+    } else {
+      return { error: true, message: "No default card found" };
+    }
     let initial_amount;
-    if (body.trial_period_days <= 0) {
+    if (body.trial_period_days && body.trial_period_days <= 0) {
       //%%
       initial_amount =
         parseInt(body.initial_amount, 10) - body.installment_amount;
@@ -144,7 +155,7 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
             metadata: body.metadata,
             trial_period_days: body.trial_period_days,
             days_until_due: body.trial_period_days,
-            default_source: body.card_id,
+            default_source: defaultCard.id,
           }
         : {
             customer: body.customer_id,
@@ -152,7 +163,7 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
             items: [{ price: recurringPrice.id }],
             add_invoice_items: [{ price: oneTimePrice.id }],
             metadata: body.metadata,
-            default_source: body.card_id,
+            default_source: defaultCard.id,
           };
 
     // Create the subscription

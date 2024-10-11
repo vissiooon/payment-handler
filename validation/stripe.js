@@ -24,13 +24,12 @@ const validateInstallment = (body) => {
     product_name: Joi.string().required(),
     description: Joi.string().required(),
     unit_amount: Joi.number().required(),
-    one_time_amount: Joi.number().required(),
+    initial_amount: Joi.number().required(),
     currency: Joi.string().required(),
-    interval: Joi.number().required(),
+    interval_time: Joi.string().required(),
     interval_count: Joi.number().required(),
     customer_id: Joi.string().required(),
     metadata: Joi.object().required(),
-    card_id: Joi.string().required(),
     trial_period_days: Joi.number().allow(null, ""),
   });
   const { error } = schema.validate(body);
