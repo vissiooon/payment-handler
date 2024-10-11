@@ -147,7 +147,7 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
 
     // Create the subscription object based on trial period
     const subscriptionObj =
-      trial_period_days > 0
+    body.trial_period_days > 0
         ? {
             customer: body.customer_id,
             payment_behavior: "allow_incomplete",
