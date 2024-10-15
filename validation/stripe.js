@@ -176,6 +176,42 @@ const validateRetrieveCustomerCard = (body) => {
   }
 };
 
+const validateAddWebhook = (body) => {
+  const schema = Joi.object({
+    enabled_events: Joi.string().required(),
+    webhook_url: Joi.string().required(),
+  });
+  const { error } = schema.validate(body);
+  if (error) {
+    return {
+      error: true,
+      message: error.details[0].message,
+    };
+  } else {
+    return {
+      error: false,
+      message: "Validated",
+    };
+  }
+};
+const validateCancelSubscription = (body) => {
+  const schema = Joi.object({
+    subscription_id: Joi.string().required(),
+  });
+  const { error } = schema.validate(body);
+  if (error) {
+    return {
+      error: true,
+      message: error.details[0].message,
+    };
+  } else {
+    return {
+      error: false,
+      message: "Validated",
+    };
+  }
+};
+
 module.exports = {
   validateCustomerBody,
   validateInstallment,
@@ -185,4 +221,6 @@ module.exports = {
   validateRetrievePaymentIntent,
   validateOneTimePayment,
   validateRetrieveCustomerCard,
+  validateAddWebhook,
+  validateCancelSubscription,
 };

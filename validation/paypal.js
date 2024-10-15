@@ -1,0 +1,156 @@
+const Joi = require("joi");
+
+const validateConfigurePaypal = (body) => {
+  const schema = Joi.object({
+    mode: Joi.string().required(),
+    client_id: Joi.string().required(),
+    client_secret: Joi.string().required(),
+  });
+  const { error } = schema.validate(body);
+  if (error) {
+    return {
+      error: true,
+      message: error.details[0].message,
+    };
+  } else {
+    return {
+      error: false,
+      message: "Validated",
+    };
+  }
+};
+
+const validateOneTimePaymentPlan = (body) => {
+  const schema = Joi.object({
+    amount: Joi.number().required(),
+    currency: Joi.string().required(),
+    return_url: Joi.string().required(),
+  });
+  const { error } = schema.validate(body);
+  if (error) {
+    return {
+      error: true,
+      message: error.details[0].message,
+    };
+  } else {
+    return {
+      error: false,
+      message: "Validated",
+    };
+  }
+};
+
+const validateRecurringPaymentPlan = (body) => {
+  const schema = Joi.object({
+    amount: Joi.number().required(),
+    currency: Joi.string().required(),
+    frequency: Joi.string().required(),
+    plan_name: Joi.string().required(),
+    trial_period_days: Joi.number().required(),
+    return_url: Joi.string().required(),
+  });
+  const { error } = schema.validate(body);
+  if (error) {
+    return {
+      error: true,
+      message: error.details[0].message,
+    };
+  } else {
+    return {
+      error: false,
+      message: "Validated",
+    };
+  }
+};
+const validateFixedRecurringPayment = (body) => {
+  const schema = Joi.object({
+    amount: Joi.number().required(),
+    currency: Joi.string().required(),
+    frequency: Joi.string().required(),
+    plan_name: Joi.string().required(),
+    trial_period_days: Joi.number().required(),
+    cycles: Joi.number().required(),
+    return_url: Joi.string().required(),
+  });
+  const { error } = schema.validate(body);
+  if (error) {
+    return {
+      error: true,
+      message: error.details[0].message,
+    };
+  } else {
+    return {
+      error: false,
+      message: "Validated",
+    };
+  }
+};
+const validateInstallmentsPayment = (body) => {
+  const schema = Joi.object({
+    amount: Joi.number().required(),
+    initial_amount: Joi.number().required(),
+    currency: Joi.string().required(),
+    frequency: Joi.string().required(),
+    plan_name: Joi.string().required(),
+    trial_period_days: Joi.number().required(),
+    cycles: Joi.number().required(),
+    return_url: Joi.string().required(),
+  });
+  const { error } = schema.validate(body);
+  if (error) {
+    return {
+      error: true,
+      message: error.details[0].message,
+    };
+  } else {
+    return {
+      error: false,
+      message: "Validated",
+    };
+  }
+};
+const validateExecutePayment = (body) => {
+  const schema = Joi.object({
+    payment_id: Joi.string().required(),
+    payer_id: Joi.string().required(),
+  });
+  const { error } = schema.validate(body);
+  if (error) {
+    return {
+      error: true,
+      message: error.details[0].message,
+    };
+  } else {
+    return {
+      error: false,
+      message: "Validated",
+    };
+  }
+};
+
+const validateBillingAgreementExecute = (body) => {
+  const schema = Joi.object({
+    token: Joi.string().required(),
+  });
+  const { error } = schema.validate(body);
+  if (error) {
+    return {
+      error: true,
+      message: error.details[0].message,
+    };
+  } else {
+    return {
+      error: false,
+      message: "Validated",
+    };
+  }
+};
+module.exports = {
+  validateConfigurePaypal,
+  validateOneTimePaymentPlan,
+  validateRecurringPaymentPlan,
+  validateFixedRecurringPayment,
+  validateInstallmentsPayment,
+  validateExecutePayment,
+  validateBillingAgreementExecute,
+};

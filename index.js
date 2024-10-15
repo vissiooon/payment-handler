@@ -7,7 +7,17 @@ const {
   RETRIEVE_PAYMENT_INTENT_FROM_STRIPE,
   CREATE_RECURRING_BASIC_SUBSCRIPTION_ON_STRIPE,
   CREATE_RECURRING_FIXED_SUBSCRIPTION_ON_STRIPE,
+  CANCEL_SUBSCRIPTION_IMMEDIATELY,
 } = require("./src/stripe");
+const {
+  configurePaypal,
+  createPaymentPlanOneTime,
+  createPaymentPlanRecurring,
+  createPaymentFixedRecurring,
+  createPaymentInstallments,
+  executePayment,
+  billingAgreementExecute,
+} = require("./src/paypal");
 
 module.exports = {
   CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE,
@@ -18,4 +28,12 @@ module.exports = {
   RETRIEVE_PAYMENT_INTENT_FROM_STRIPE,
   CREATE_RECURRING_BASIC_SUBSCRIPTION_ON_STRIPE,
   CREATE_RECURRING_FIXED_SUBSCRIPTION_ON_STRIPE,
+  CANCEL_SUBSCRIPTION_IMMEDIATELY,
+  configurePaypal,
+  createPaymentPlanOneTime,
+  createPaymentPlanRecurring,
+  createPaymentFixedRecurring,
+  createPaymentInstallments,
+  executePayment,
+  billingAgreementExecute,
 };
