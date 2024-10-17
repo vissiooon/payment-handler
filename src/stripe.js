@@ -113,7 +113,7 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
     let interval_count = 1;
     if (body.interval_time == "custom") {
       body.interval_time = "day";
-      interval_count = body.interval_count;
+      interval_count = body.custom_days;
     }
 
     const customer = await stripe.customers.retrieve(body.customer_id);
@@ -218,21 +218,21 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
     const subscriptionObj =
       body.trial_period_days > 0
         ? {
-            customer: body.customer_id,
-            payment_behavior: "allow_incomplete",
-            items: [{ price: recurringPrice.id }],
-            metadata: body.metadata,
-            trial_period_days: body.trial_period_days,
-            default_source: defaultCard.id,
-          }
+          customer: body.customer_id,
+          payment_behavior: "allow_incomplete",
+          items: [{ price: recurringPrice.id }],
+          metadata: body.metadata,
+          trial_period_days: body.trial_period_days,
+          default_source: defaultCard.id,
+        }
         : {
-            customer: body.customer_id,
-            payment_behavior: "allow_incomplete",
-            items: [{ price: recurringPrice.id }],
-            add_invoice_items: [{ price: oneTimePrice.id }],
-            metadata: body.metadata,
-            // default_source: defaultCard.id,
-          };
+          customer: body.customer_id,
+          payment_behavior: "allow_incomplete",
+          items: [{ price: recurringPrice.id }],
+          add_invoice_items: [{ price: oneTimePrice.id }],
+          metadata: body.metadata,
+          // default_source: defaultCard.id,
+        };
 
     // Create the subscription
     const subscription = await stripe.subscriptions.create(subscriptionObj);
@@ -300,7 +300,7 @@ async function CREATE_RECURRING_BASIC_SUBSCRIPTION_ON_STRIPE(
     let interval_count = 1;
     if (body.interval_time == "custom") {
       body.interval_time = "day";
-      interval_count = body.interval_count;
+      interval_count = body.custom_days;
     }
     // Step 1: Create product
     const product = await new Promise((resolve, reject) => {
@@ -422,7 +422,7 @@ const CREATE_RECURRING_FIXED_SUBSCRIPTION_ON_STRIPE = async (
     let interval_count = 1;
     if (body.interval_time == "custom") {
       body.interval_time = "day";
-      interval_count = body.interval_count;
+      interval_count = body.custom_days;
     }
 
     // Step 1: Create a Stripe product

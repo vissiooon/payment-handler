@@ -34,6 +34,7 @@ const validateInstallment = (body) => {
     discount_type: Joi.string().allow("percentage", "fixed", "", null),
     discount: Joi.number().allow("", null),
     tax: Joi.number().allow("", null),
+    custom_days: Joi.string().allow("", null),
   });
   const { error } = schema.validate(body);
   if (error) {
@@ -63,6 +64,7 @@ const validateRecurringBasic = (body) => {
     discount_type: Joi.string().allow("percentage", "fixed", "", null),
     discount: Joi.number().allow("", null),
     tax: Joi.number().allow("", null),
+    custom_days: Joi.string().allow("", null),
   });
   const { error } = schema.validate(body);
   if (error) {
@@ -92,6 +94,7 @@ const validateRecurringFixed = (body) => {
     discount_type: Joi.string().allow("percentage", "fixed", "", null),
     discount: Joi.number().allow("", null),
     tax: Joi.number().allow("", null),
+    custom_days: Joi.string().allow("", null),
   });
   const { error } = schema.validate(body);
   if (error) {
