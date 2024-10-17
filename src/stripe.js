@@ -113,7 +113,7 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
     let interval_count = 1;
     if (body.interval_time == "custom") {
       body.interval_time = "day";
-      interval_count = body.custom_days;
+      interval_count = parseInt(body.custom_days, 10);
     }
 
     const customer = await stripe.customers.retrieve(body.customer_id);
