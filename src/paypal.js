@@ -34,6 +34,23 @@ const createPaymentPlanOneTime = (body, paypal) => {
   if (error) {
     return { error: true, message: message, response: null };
   }
+  body.currency = body.currency.toUpperCase();
+  if (body.discount > 0) {
+    if (body.discount.type == "percentage") {
+      console.log("enter into discount percentage case");
+      let discount_amount = (body.discount / 100) * body.amount;
+      body.amount = (body.amount - discount_amount).toFixed(1);
+      body.amount = parseFloat(body.amount);
+    } else {
+      console.log("enter into fixed percentage case");
+      body.amount = (body.amount - body.discount).toFixed(1);
+      body.amount = parseFloat(body.amount);
+    }
+  }
+  if (body.tax > 0) {
+    tax = body.amount * (body.tax / 100);
+    body.amount = tax + body.amount;
+  }
   return new Promise((resolve) => {
     const create_payment_json = {
       intent: "sale",
@@ -83,7 +100,13 @@ const createPaymentPlanOneTime = (body, paypal) => {
         });
       } else {
         console.log("Payment created successfully:", payment);
-        resolve({ error: false, message: "", response: payment });
+        let link = "";
+        for (let i = 0; i < payment.links.length; i++) {
+          if (payment.links[i].rel == "approval_url") {
+            link = payment.links[i];
+          }
+        }
+        resolve({ error: false, message: "", response: { payment, link } });
       }
     });
   });
@@ -94,6 +117,30 @@ const createPaymentPlanRecurring = async (body, paypal) => {
   let { error, message } = validateRecurringPaymentPlan(body);
   if (error) {
     return { error: true, message: message, response: null };
+  }
+  let link = "";
+  body.currency = body.currency.toUpperCase();
+  if (body.discount > 0) {
+    if (body.discount.type == "percentage") {
+      console.log("enter into discount percentage case");
+      let discount_amount = (body.discount / 100) * body.amount;
+      body.amount = (body.amount - discount_amount).toFixed(1);
+      body.amount = parseFloat(body.amount);
+    } else {
+      console.log("enter into fixed percentage case");
+      body.amount = (body.amount - body.discount).toFixed(1);
+      body.amount = parseFloat(body.amount);
+    }
+  }
+  if (body.tax > 0) {
+    tax = body.amount * (body.tax / 100);
+    body.amount = tax + body.amount;
+  }
+
+  let cycles = 1;
+  if (body.frequency == "custom") {
+    body.frequency = "DAY";
+    cycles = body.cycles;
   }
   return new Promise(async (resolve) => {
     try {
@@ -108,7 +155,7 @@ const createPaymentPlanRecurring = async (body, paypal) => {
           name: "Regular Payments",
           type: "REGULAR",
           frequency: UppercaseFrequency,
-          frequency_interval: "1",
+          frequency_interval: String(cycles),
           cycles: "0",
           amount: {
             currency: body.currency,
@@ -218,9 +265,17 @@ const createPaymentPlanRecurring = async (body, paypal) => {
           }
         );
       });
-
+      for (let i = 0; i < billingAgreement.links.length; i++) {
+        if (billingAgreement.links[i].rel == "approval_url") {
+          link = billingAgreement.links[i];
+        }
+      }
       // Resolve the billing agreement
-      resolve({ error: false, message: "", response: billingAgreement });
+      resolve({
+        error: false,
+        message: "",
+        response: { billingAgreement, link },
+      });
     } catch (error) {
       resolve({ error: true, message: error.message, response: null });
     }
@@ -233,6 +288,34 @@ const createPaymentFixedRecurring = async (body, paypal) => {
   if (error) {
     return { error: true, message: message, response: null };
   }
+  let link = "";
+  body.currency = body.currency.toUpperCase();
+  if (body.discount > 0) {
+    if (body.discount.type == "percentage") {
+      console.log("enter into discount percentage case");
+      let discount_amount = (body.discount / 100) * body.amount;
+      body.amount = (body.amount - discount_amount).toFixed(1);
+      body.amount = parseFloat(body.amount);
+    } else {
+      console.log("enter into fixed percentage case");
+      body.amount = (body.amount - body.discount).toFixed(1);
+      body.amount = parseFloat(body.amount);
+    }
+  }
+  if (body.tax > 0) {
+    tax = body.amount * (body.tax / 100);
+    body.amount = tax + body.amount;
+  }
+  if (body.cycles > 0) {
+    body.amount = body.amount / body.cycles;
+  }
+
+  let cycles = 1;
+  if (body.frequency == "custom") {
+    body.frequency = "DAY";
+    cycles = body.cycles;
+  }
+
   return new Promise(async (resolve) => {
     try {
       console.log(
@@ -245,7 +328,7 @@ const createPaymentFixedRecurring = async (body, paypal) => {
           name: "Regular Payments",
           type: "REGULAR",
           frequency: UppercaseFrequency,
-          frequency_interval: "1",
+          frequency_interval: String(cycles),
           cycles: body.cycles,
           amount: {
             currency: body.currency,
@@ -350,8 +433,16 @@ const createPaymentFixedRecurring = async (body, paypal) => {
           }
         );
       });
-
-      resolve({ error: false, message: "", response: billingAgreement });
+      for (let i = 0; i < billingAgreement.links.length; i++) {
+        if (billingAgreement.links[i].rel == "approval_url") {
+          link = billingAgreement.links[i];
+        }
+      }
+      resolve({
+        error: false,
+        message: "",
+        response: { billingAgreement, link },
+      });
     } catch (error) {
       resolve({ error: true, message: error.message, response: null });
     }
@@ -364,6 +455,68 @@ const createPaymentInstallments = async (body, paypal) => {
   if (error) {
     return { error: true, message: message, response: null };
   }
+  let link = "";
+  body.currency = body.currency.toUpperCase();
+  if (body.discount > 0) {
+    const amount = body.discount;
+    let discountPercentage = 0;
+
+    if (body.discount_type === "percentage") {
+      discountPercentage = amount;
+    } else {
+      discountPercentage = (amount / body.total_amount) * 100;
+    }
+
+    console.log(`Discount Percentage: ${discountPercentage.toFixed(2)}%`);
+
+    // Apply discount based on calculated percentage
+    let discountedInitial =
+      body.initial_amount * (1 - discountPercentage / 100);
+    let discountedInstallmentTotal =
+      (body.total_amount - body.initial_amount) *
+      (1 - discountPercentage / 100);
+
+    console.log(discountedInitial.toFixed(2), "Discounted initial amount");
+    console.log(
+      discountedInstallmentTotal.toFixed(2),
+      "Discounted installment total"
+    );
+
+    // Adjust interval count for no trial
+    // if (body.trial_period_days < 1) {
+    //   body.interval_count -= 1;
+    // }
+
+    body.amount = discountedInstallmentTotal / body.interval_count;
+    console.log(body.amount.toFixed(2), "Installment amount per interval");
+    body.initial_amount = discountedInitial.toFixed(2);
+    // if (body.trial_period_days < 1) {
+    //   body.initial_amount = parseFloat(body.initial_amount, 10) - body.amount;
+    // }
+  }
+  console.log(body.initial_amount, "body.initial_amount before tax");
+  console.log(body.amount, "body.amount before tax");
+  // calculating discount
+  let tax = 0,
+    payment;
+  if (body.tax > 0) {
+    tax = body.amount * (body.tax / 100);
+    body.amount = tax + body.amount;
+    body.amount = body.amount.toFixed(2);
+    tax = body.initial_amount * (body.tax / 100);
+    body.initial_amount = tax + body.initial_amount;
+    body.initial_amount = body.initial_amount.toFixed(2);
+  }
+  if (body.cycles > 0) {
+    body.amount = body.amount / body.cycles;
+  }
+
+  let cycles = 1;
+  if (body.frequency == "custom") {
+    body.frequency = "DAY";
+    cycles = body.cycles;
+  }
+
   return new Promise(async (resolve) => {
     try {
       const UppercaseFrequency = body.frequency.toUpperCase();
@@ -393,7 +546,7 @@ const createPaymentInstallments = async (body, paypal) => {
             : " Regular Payments"),
         type: "REGULAR",
         frequency: UppercaseFrequency,
-        frequency_interval: "1",
+        frequency_interval: String(cycles), // Number of days for each billing cycle
         cycles: body.cycles.toString(), // Number of regular payments
         amount: {
           currency: body.currency,
@@ -499,8 +652,16 @@ const createPaymentInstallments = async (body, paypal) => {
           }
         );
       });
-
-      resolve({ error: false, message: "", response: billingAgreement }); // Return the billing agreement
+      for (let i = 0; i < billingAgreement.links.length; i++) {
+        if (billingAgreement.links[i].rel == "approval_url") {
+          link = billingAgreement.links[i];
+        }
+      }
+      resolve({
+        error: false,
+        message: "",
+        response: { billingAgreement, link },
+      }); // Return the billing agreement
     } catch (error) {
       resolve({ error: true, message: error.message, response: null });
     }
@@ -541,7 +702,7 @@ let executePayment = async (body, paypal) => {
   }
 };
 
-let billingAgreementExecute = async (paypal) => {
+let billingAgreementExecute = async (body, paypal) => {
   //validate the body with joi
   let { error, message } = validateBillingAgreementExecute(body);
   if (error) {
@@ -560,9 +721,8 @@ let billingAgreementExecute = async (paypal) => {
               );
               reject(error);
             } else {
-              let subscription_status = CUSTOMER_SUBSCRIPTION_OBJECT.SUCCESS;
-              if (plan.trial_period_days > 0) {
-                subscription_status = CUSTOMER_SUBSCRIPTION_OBJECT.TRIAL;
+              if (body.trial_period_days > 0) {
+                // Handle trial period logic here if needed
               }
               resolve(billing_agreement_execute_res);
             }

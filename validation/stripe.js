@@ -31,6 +31,9 @@ const validateInstallment = (body) => {
     customer_id: Joi.string().required(),
     metadata: Joi.object().required(),
     trial_period_days: Joi.number().allow(null, ""),
+    discount_type: Joi.string().allow("percentage", "fixed", "", null),
+    discount: Joi.number().allow("", null),
+    tax: Joi.number().allow("", null),
   });
   const { error } = schema.validate(body);
   if (error) {
@@ -57,6 +60,9 @@ const validateRecurringBasic = (body) => {
     customer_id: Joi.string().required(),
     metadata: Joi.object().allow(null, ""),
     trial_period_days: Joi.number().allow(null, ""),
+    discount_type: Joi.string().allow("percentage", "fixed", "", null),
+    discount: Joi.number().allow("", null),
+    tax: Joi.number().allow("", null),
   });
   const { error } = schema.validate(body);
   if (error) {
@@ -83,6 +89,9 @@ const validateRecurringFixed = (body) => {
     customer_id: Joi.string().required(),
     metadata: Joi.object().allow(null, ""),
     trial_period_days: Joi.number().allow(null, ""),
+    discount_type: Joi.string().allow("percentage", "fixed", "", null),
+    discount: Joi.number().allow("", null),
+    tax: Joi.number().allow("", null),
   });
   const { error } = schema.validate(body);
   if (error) {
@@ -143,6 +152,9 @@ const validateOneTimePayment = (body) => {
     customer_id: Joi.string().required(),
     metadata: Joi.object().allow(null, ""),
     return_url: Joi.string().required(),
+    discount_type: Joi.string().allow("percentage", "fixed", "", null),
+    discount: Joi.number().allow("", null),
+    tax: Joi.number().allow("", null),
   });
   const { error } = schema.validate(body);
   if (error) {

@@ -55,6 +55,67 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
     if (error) {
       return { error: true, message: message, response: null };
     }
+
+    if (body.discount > 0) {
+      const amount = body.discount;
+      let discountPercentage = 0;
+
+      if (body.discount_type === "percentage") {
+        discountPercentage = amount;
+      } else {
+        discountPercentage = (amount / body.unit_amount) * 100;
+      }
+
+      console.log(`Discount Percentage: ${discountPercentage.toFixed(2)}%`);
+
+      // Apply discount based on calculated percentage
+      let discountedInitial =
+        body.initial_amount * (1 - discountPercentage / 100);
+      let discountedInstallmentTotal =
+        (body.unit_amount - body.initial_amount) *
+        (1 - discountPercentage / 100);
+
+      console.log(discountedInitial.toFixed(2), "Discounted initial amount");
+      console.log(
+        discountedInstallmentTotal.toFixed(2),
+        "Discounted installment total"
+      );
+
+      // Adjust interval count for no trial
+      // if (body.trial_period_days < 1) {
+      //   body.interval_count -= 1;
+      // }
+
+      body.unit_amount = discountedInstallmentTotal / body.interval_count;
+      console.log(
+        body.unit_amount.toFixed(2),
+        "Installment amount per interval"
+      );
+      body.initial_amount = discountedInitial.toFixed(2);
+      // if (body.trial_period_days < 1) {
+      //   body.initial_amount = parseFloat(body.initial_amount, 10) - body.amount;
+      // }
+    }
+    console.log(body.initial_amount, "body.initial_amount before tax");
+    console.log(body.unit_amount, "body.amount before tax");
+    // calculating discount
+    let tax = 0,
+      payment;
+    if (body.tax > 0) {
+      tax = body.unit_amount * (body.tax / 100);
+      body.unit_amount = tax + body.amount;
+      body.unit_amount = body.unit_amount.toFixed(2);
+      tax = body.initial_amount * (body.tax / 100);
+      body.initial_amount = tax + body.initial_amount;
+      body.initial_amount = body.initial_amount.toFixed(2);
+    }
+
+    let interval_count = 1;
+    if (body.interval_time == "custom") {
+      body.interval_time = "day";
+      interval_count = body.interval_count;
+    }
+
     const customer = await stripe.customers.retrieve(body.customer_id);
     let defaultCard;
     const defaultCardId = customer.default_source;
@@ -110,7 +171,7 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
                     currency: body.currency,
                     recurring: {
                       interval: body.interval_time,
-                      interval_count: 1,
+                      interval_count: interval_count,
                     },
                   },
                   (err, recurringPrice) => {
@@ -220,6 +281,27 @@ async function CREATE_RECURRING_BASIC_SUBSCRIPTION_ON_STRIPE(
   try {
     const stripe = require("stripe")(stripe_secret_key);
 
+    if (body.discount > 0) {
+      if (body.discount.type == "percentage") {
+        console.log("enter into discount percentage case");
+        let discount_amount = (body.discount / 100) * body.unit_amount;
+        body.unit_amount = (body.unit_amount - discount_amount).toFixed(1);
+        body.unit_amount = parseFloat(body.unit_amount);
+      } else {
+        console.log("enter into fixed percentage case");
+        body.unit_amount = (body.unit_amount - body.discount).toFixed(1);
+        body.unit_amount = parseFloat(body.unit_amount);
+      }
+    }
+    if (body.tax > 0) {
+      tax = body.unit_amount * (body.tax / 100);
+      body.unit_amount = tax + body.unit_amount;
+    }
+    let interval_count = 1;
+    if (body.interval_time == "custom") {
+      body.interval_time = "day";
+      interval_count = body.interval_count;
+    }
     // Step 1: Create product
     const product = await new Promise((resolve, reject) => {
       stripe.products.create(
@@ -248,7 +330,7 @@ async function CREATE_RECURRING_BASIC_SUBSCRIPTION_ON_STRIPE(
           currency: body.currency,
           interval: body.interval_time,
           product: product.id,
-          interval_count: body.interval_count,
+          interval_count: interval_count,
         },
         (err, price) => {
           if (err) {
@@ -315,10 +397,33 @@ const CREATE_RECURRING_FIXED_SUBSCRIPTION_ON_STRIPE = async (
     return { error: true, message: message, response: null };
   }
 
+  if (body.discount > 0) {
+    if (body.discount.type == "percentage") {
+      console.log("enter into discount percentage case");
+      let discount_amount = (body.discount / 100) * body.unit_amount;
+      body.unit_amount = (body.unit_amount - discount_amount).toFixed(1);
+      body.unit_amount = parseFloat(body.unit_amount);
+    } else {
+      console.log("enter into fixed percentage case");
+      body.unit_amount = (body.unit_amount - body.discount).toFixed(1);
+      body.unit_amount = parseFloat(body.unit_amount);
+    }
+  }
+  if (body.tax > 0) {
+    tax = body.unit_amount * (body.tax / 100);
+    body.unit_amount = tax + body.unit_amount;
+  }
+
   let unit_amount = body.unit_amount / body.interval_count;
 
   try {
     const stripe = require("stripe")(stripe_secret_key);
+
+    let interval_count = 1;
+    if (body.interval_time == "custom") {
+      body.interval_time = "day";
+      interval_count = body.interval_count;
+    }
 
     // Step 1: Create a Stripe product
     const product = await new Promise((resolve, reject) => {
@@ -349,7 +454,7 @@ const CREATE_RECURRING_FIXED_SUBSCRIPTION_ON_STRIPE = async (
           currency: body.currency,
           recurring: {
             interval: body.interval_time,
-            interval_count: body.interval_count,
+            interval_count: interval_count,
           },
         },
         (err, price) => {
@@ -448,8 +553,26 @@ const CREATE_ONE_TIME_PAYMENT_ON_STRIPE = async (body, stripe_secret_key) => {
   if (error) {
     return { error: true, message: message, response: null };
   }
+
   try {
     const stripe = require("stripe")(stripe_secret_key);
+
+    if (body.discount > 0) {
+      if (body.discount.type == "percentage") {
+        console.log("enter into discount percentage case");
+        let discount_amount = (body.discount / 100) * body.unit_amount;
+        body.unit_amount = (body.unit_amount - discount_amount).toFixed(1);
+        body.unit_amount = parseFloat(body.unit_amount);
+      } else {
+        console.log("enter into fixed percentage case");
+        body.unit_amount = (body.unit_amount - body.discount).toFixed(1);
+        body.unit_amount = parseFloat(body.unit_amount);
+      }
+    }
+    if (body.tax > 0) {
+      tax = body.unit_amount * (body.tax / 100);
+      body.unit_amount = tax + body.unit_amount;
+    }
     // Step 1: Create the product
     const product = await new Promise((resolve, reject) => {
       stripe.products.create(
