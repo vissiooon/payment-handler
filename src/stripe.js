@@ -115,6 +115,7 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
       body.interval_time = "day";
       interval_count = parseInt(body.custom_days, 10);
     }
+    console.log("I am here ---------------");
 
     const customer = await stripe.customers.retrieve(body.customer_id);
     let defaultCard;
@@ -137,7 +138,7 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
       initial_amount = body.initial_amount;
     }
 
-    let unit_amount = unit_amount / body.interval_count;
+    let unit_amount = body.unit_amount / body.interval_count;
     unit_amount = body.initial_amount - body.unit_amount;
     const { product, recurringPrice, oneTimePrice } = await new Promise(
       (resolve, reject) => {
@@ -219,21 +220,21 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
     const subscriptionObj =
       body.trial_period_days > 0
         ? {
-          customer: body.customer_id,
-          payment_behavior: "allow_incomplete",
-          items: [{ price: recurringPrice.id }],
-          metadata: body.metadata,
-          trial_period_days: body.trial_period_days,
-          default_source: defaultCard.id,
-        }
+            customer: body.customer_id,
+            payment_behavior: "allow_incomplete",
+            items: [{ price: recurringPrice.id }],
+            metadata: body.metadata,
+            trial_period_days: body.trial_period_days,
+            default_source: defaultCard.id,
+          }
         : {
-          customer: body.customer_id,
-          payment_behavior: "allow_incomplete",
-          items: [{ price: recurringPrice.id }],
-          add_invoice_items: [{ price: oneTimePrice.id }],
-          metadata: body.metadata,
-          // default_source: defaultCard.id,
-        };
+            customer: body.customer_id,
+            payment_behavior: "allow_incomplete",
+            items: [{ price: recurringPrice.id }],
+            add_invoice_items: [{ price: oneTimePrice.id }],
+            metadata: body.metadata,
+            // default_source: defaultCard.id,
+          };
 
     // Create the subscription
     const subscription = await stripe.subscriptions.create(subscriptionObj);
@@ -263,7 +264,7 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
       payment_intent: paymentIntent,
     };
   } catch (err) {
-    console.log("Error in creating subscription: ", err);
+    console.log("Error in creating subscription: --------", err);
     return { error: true, message: err.message };
   }
 };
@@ -561,19 +562,20 @@ const CREATE_ONE_TIME_PAYMENT_ON_STRIPE = async (body, stripe_secret_key) => {
     if (body.discount > 0) {
       if (body.discount.type == "percentage") {
         console.log("enter into discount percentage case");
-        let discount_amount = (body.discount / 100) * body.unit_amount;
-        body.unit_amount = (body.unit_amount - discount_amount).toFixed(1);
-        body.unit_amount = parseFloat(body.unit_amount);
+        let discount_amount = (body.discount / 100) * body.amount;
+        body.amount = (body.amount - discount_amount).toFixed(1);
+        body.amount = parseFloat(body.amount);
       } else {
         console.log("enter into fixed percentage case");
-        body.unit_amount = (body.unit_amount - body.discount).toFixed(1);
-        body.unit_amount = parseFloat(body.unit_amount);
+        body.amount = (body.amount - body.discount).toFixed(1);
+        body.amount = parseFloat(body.amount);
       }
     }
     if (body.tax > 0) {
-      tax = body.unit_amount * (body.tax / 100);
-      body.unit_amount = tax + body.unit_amount;
+      tax = body.amount * (body.tax / 100);
+      body.amount = tax + body.amount;
     }
+    console.log("Amount after discount: ---------", body.amount);
     // Step 1: Create the product
     const product = await new Promise((resolve, reject) => {
       stripe.products.create(

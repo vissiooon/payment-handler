@@ -137,10 +137,10 @@ const createPaymentPlanRecurring = async (body, paypal) => {
     body.amount = tax + body.amount;
   }
 
-  let cycles = 1;
+  let custom_days = 1;
   if (body.frequency == "custom") {
     body.frequency = "DAY";
-    cycles = body.cycles;
+    custom_days = body.custom_days;
   }
   return new Promise(async (resolve) => {
     try {
@@ -155,7 +155,7 @@ const createPaymentPlanRecurring = async (body, paypal) => {
           name: "Regular Payments",
           type: "REGULAR",
           frequency: UppercaseFrequency,
-          frequency_interval: String(cycles),
+          frequency_interval: String(custom_days),
           cycles: "0",
           amount: {
             currency: body.currency,
@@ -310,10 +310,10 @@ const createPaymentFixedRecurring = async (body, paypal) => {
     body.amount = body.amount / body.cycles;
   }
 
-  let cycles = 1;
+  let custom_days = 1;
   if (body.frequency == "custom") {
     body.frequency = "DAY";
-    cycles = body.cycles;
+    custom_days = body.custom_days;
   }
 
   return new Promise(async (resolve) => {
@@ -328,7 +328,7 @@ const createPaymentFixedRecurring = async (body, paypal) => {
           name: "Regular Payments",
           type: "REGULAR",
           frequency: UppercaseFrequency,
-          frequency_interval: String(cycles),
+          frequency_interval: String(custom_days),
           cycles: body.cycles,
           amount: {
             currency: body.currency,
@@ -464,7 +464,7 @@ const createPaymentInstallments = async (body, paypal) => {
     if (body.discount_type === "percentage") {
       discountPercentage = amount;
     } else {
-      discountPercentage = (amount / body.total_amount) * 100;
+      discountPercentage = (amount / body.amount) * 100;
     }
 
     console.log(`Discount Percentage: ${discountPercentage.toFixed(2)}%`);
@@ -473,8 +473,7 @@ const createPaymentInstallments = async (body, paypal) => {
     let discountedInitial =
       body.initial_amount * (1 - discountPercentage / 100);
     let discountedInstallmentTotal =
-      (body.total_amount - body.initial_amount) *
-      (1 - discountPercentage / 100);
+      (body.amount - body.initial_amount) * (1 - discountPercentage / 100);
 
     console.log(discountedInitial.toFixed(2), "Discounted initial amount");
     console.log(
@@ -511,10 +510,10 @@ const createPaymentInstallments = async (body, paypal) => {
     body.amount = body.amount / body.cycles;
   }
 
-  let cycles = 1;
+  let custom_days = 1;
   if (body.frequency == "custom") {
     body.frequency = "DAY";
-    cycles = body.cycles;
+    custom_days = body.custom_days;
   }
 
   return new Promise(async (resolve) => {
@@ -546,7 +545,7 @@ const createPaymentInstallments = async (body, paypal) => {
             : " Regular Payments"),
         type: "REGULAR",
         frequency: UppercaseFrequency,
-        frequency_interval: String(cycles), // Number of days for each billing cycle
+        frequency_interval: String(custom_days), // Number of days for each billing cycle
         cycles: body.cycles.toString(), // Number of regular payments
         amount: {
           currency: body.currency,
