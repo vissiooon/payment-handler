@@ -220,21 +220,21 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
     const subscriptionObj =
       body.trial_period_days > 0
         ? {
-            customer: body.customer_id,
-            payment_behavior: "allow_incomplete",
-            items: [{ price: recurringPrice.id }],
-            metadata: body.metadata,
-            trial_period_days: body.trial_period_days,
-            default_source: defaultCard.id,
-          }
+          customer: body.customer_id,
+          payment_behavior: "allow_incomplete",
+          items: [{ price: recurringPrice.id }],
+          metadata: body.metadata,
+          trial_period_days: body.trial_period_days,
+          default_source: defaultCard.id,
+        }
         : {
-            customer: body.customer_id,
-            payment_behavior: "allow_incomplete",
-            items: [{ price: recurringPrice.id }],
-            add_invoice_items: [{ price: oneTimePrice.id }],
-            metadata: body.metadata,
-            // default_source: defaultCard.id,
-          };
+          customer: body.customer_id,
+          payment_behavior: "allow_incomplete",
+          items: [{ price: recurringPrice.id }],
+          add_invoice_items: [{ price: oneTimePrice.id }],
+          metadata: body.metadata,
+          // default_source: defaultCard.id,
+        };
 
     // Create the subscription
     const subscription = await stripe.subscriptions.create(subscriptionObj);
@@ -595,10 +595,11 @@ const CREATE_ONE_TIME_PAYMENT_ON_STRIPE = async (body, stripe_secret_key) => {
     });
 
     // Step 2: Create the payment intent
+    let price_amount = parseFloat((body.amount * 100).toFixed(1));
     const payment = await new Promise((resolve, reject) => {
       stripe.paymentIntents.create(
         {
-          amount: body.amount * 100,
+          amount: price_amount,
           currency: body.currency,
           customer: body.customer_id,
           description: body.description,
