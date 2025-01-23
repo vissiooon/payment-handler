@@ -1,7 +1,7 @@
 {
   "name": "payment-handler",
-  "version": "1.0.0",
-  "description": "This package is responsible for handling payments",
+  "version": "1.0.4",
+  "description": "This package is responsible for handling payments using stripe and paypal",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -12,12 +12,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/TeamDlxx/mailcub.git"
+    "url": "git+ssh://git@github.com/vissiooon/payment-handler.git"
   },
   "author": "Team DLX",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/TeamDlxx/mailcub/issues"
+    "url": "https://github.com/vissiooon/payment-handler/issues"
   },
-  "homepage": "https://github.com/TeamDlxx/mailcub#readme"
+  "homepage": "https://github.com/vissiooon/payment-handler#readme"
 }
