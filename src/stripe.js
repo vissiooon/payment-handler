@@ -572,8 +572,8 @@ const CREATE_ONE_TIME_PAYMENT_ON_STRIPE = async (body, stripe_secret_key) => {
       }
     }
     if (body.tax > 0) {
-      tax = body.amount * (body.tax / 100);
-      body.amount = tax + body.amount;
+      tax = parseFloat((body.amount).toFixed(1)) * (body.tax / 100);
+      body.amount = tax + parseFloat((body.amount).toFixed(1));
     }
     console.log("Amount after discount: ---------", body.amount);
     // Step 1: Create the product
@@ -595,11 +595,11 @@ const CREATE_ONE_TIME_PAYMENT_ON_STRIPE = async (body, stripe_secret_key) => {
     });
 
     // Step 2: Create the payment intent
-    let price_amount = parseFloat((body.amount * 100).toFixed(1));
+    let price_amount = parseFloat((body.amount).toFixed(1));
     const payment = await new Promise((resolve, reject) => {
       stripe.paymentIntents.create(
         {
-          amount: price_amount,
+          amount: price_amount * 100,
           currency: body.currency,
           customer: body.customer_id,
           description: body.description,
