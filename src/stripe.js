@@ -595,7 +595,9 @@ const CREATE_ONE_TIME_PAYMENT_ON_STRIPE = async (body, stripe_secret_key) => {
     });
     // Step 2: Create the payment intent
     let price_amount = parseInt((body.amount).toFixed(1));
-    console.log(Math.round(price_amount * 100), "value in package");
+    
+    console.log(Math.round(price_amount * 100), "value in package----");
+
     const payment = await new Promise((resolve, reject) => {
       stripe.paymentIntents.create(
         {
