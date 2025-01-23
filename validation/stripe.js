@@ -193,7 +193,7 @@ const validateRetrieveCustomerCard = (body) => {
 
 const validateAddWebhook = (body) => {
   const schema = Joi.object({
-    enabled_events: Joi.string().required(),
+    enabled_events: Joi.array().required(),
     webhook_url: Joi.string().required(),
   });
   const { error } = schema.validate(body);
