@@ -18,6 +18,7 @@ const {
   createPaymentInstallments,
   executePayment,
   billingAgreementExecute,
+  updateWebhookUrl
 } = require("./src/paypal");
 
 module.exports = {
@@ -38,4 +39,5 @@ module.exports = {
   createPaymentInstallments,
   executePayment,
   billingAgreementExecute,
+  updateWebhookUrl
 };

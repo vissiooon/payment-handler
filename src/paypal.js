@@ -8,6 +8,7 @@ const {
   validateInstallmentsPayment,
   validateExecutePayment,
   validateBillingAgreementExecute,
+  validateUpdateWebhookUrl,
 } = require("../validation/paypal");
 
 const configurePaypal = async (body, paypal) => {
@@ -738,6 +739,66 @@ let billingAgreementExecute = async (body, paypal) => {
     return { error: true, message: error.message, response: null };
   }
 };
+const updateWebhookUrl = async (body) => {
+  //validate the body with joi
+  let { error, message } = validateUpdateWebhookUrl(body);
+  if (error) {
+    return { error: true, message: message, response: null };
+  }
+  try {
+    console.log(body, "------------------------WebhookUrl");
+    const apiUrl =
+      body.environment === "sandbox"
+        ? "https://api-m.sandbox.paypal.com"
+        : "https://api-m.paypal.com";
+    // Get PayPal Access Token
+    const tokenResponse = await axios({
+      url: `${apiUrl}/v1/oauth2/token`,
+      method: "post",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      auth: { username: body.client_id, password: body.client_secret },
+      data: "grant_type=client_credentials",
+    });
+    const accessToken = tokenResponse.data.access_token;
+
+    // Check if webhook URL already exists
+    const webhooksResponse = await axios({
+      url: `${apiUrl}/v1/notifications/webhooks`,
+      method: "get",
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    const webhookExists = webhooksResponse.data.webhooks.some(
+      (webhook) => webhook.url === body.webhook_url
+    );
+
+    if (webhookExists) {
+      console.log(`Webhook URL "${body.webhook_url}" already exists.`);
+    } else {
+      // Create the webhook if it doesn't exist
+      const createResponse = await axios({
+        url: `${apiUrl}/v1/notifications/webhooks`,
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        data: {
+          url: body.webhook_url,
+          event_types: body.event_types,
+        },
+      });
+      console.log("Webhook created successfully:", createResponse.data);
+    }
+    return { error: false, message: "Webhook created successfully" };
+  } catch (error) {
+    console.log("Error:", error.response ? error.response.data : error.message);
+    return {
+      error: true,
+      message: error.response ? error.response.data : error.message,
+    };
+  }
+};
 module.exports = {
   configurePaypal,
   createPaymentPlanOneTime,
@@ -746,4 +807,5 @@ module.exports = {
   createPaymentInstallments,
   executePayment,
   billingAgreementExecute,
+  updateWebhookUrl
 };

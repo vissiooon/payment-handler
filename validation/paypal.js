@@ -42,6 +42,27 @@ const validateOneTimePaymentPlan = (body) => {
     };
   }
 };
+const validateUpdateWebhookUrl = async (body) => {
+  const schema = Joi.object({
+    environment: Joi.string().required(),
+    client_id: Joi.string().required(),
+    client_secret: Joi.string().required(),
+    webhook_url: Joi.string().required(),
+    event_types: Joi.array().required(),
+  });
+  const { error } = schema.validate(body);
+  if (error) {
+    return {
+      error: true,
+      message: error.details[0].message,
+    };
+  } else {
+    return {
+      error: false,
+      message: "Validated",
+    };
+  }
+};
 
 const validateRecurringPaymentPlan = (body) => {
   const schema = Joi.object({
@@ -168,4 +189,5 @@ module.exports = {
   validateInstallmentsPayment,
   validateExecutePayment,
   validateBillingAgreementExecute,
+  validateUpdateWebhookUrl
 };
