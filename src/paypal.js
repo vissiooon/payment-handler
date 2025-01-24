@@ -338,6 +338,7 @@ const createPaymentFixedRecurring = async (body, paypal) => {
           },
         },
       ];
+      console.log(payment_def, "payment_def");
       // in case of trial period
       if (body.trial_period_days > 0) {
         payment_def.unshift({
@@ -371,7 +372,7 @@ const createPaymentFixedRecurring = async (body, paypal) => {
           initial_fail_amount_action: "CONTINUE",
         },
       };
-
+      console.log(create_payment_json, "create_payment_json");
       const payment = await new Promise((resolve, reject) => {
         paypal.billingPlan.create(create_payment_json, (error, payment) => {
           if (error) {
