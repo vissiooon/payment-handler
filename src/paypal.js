@@ -70,7 +70,7 @@ const createPaymentPlanOneTime = (body, paypal) => {
               {
                 name: "item",
                 sku: "item",
-                price: body.amount,
+                price: Math.round(body.amount),
                 currency: body.currency,
                 quantity: 1,
               },
@@ -78,9 +78,9 @@ const createPaymentPlanOneTime = (body, paypal) => {
           },
           amount: {
             currency: body.currency,
-            total: body.amount,
+            total: Math.round(body.amount),
             details: {
-              subtotal: body.amount,
+              subtotal: Math.round(body.amount),
               tax: "0.00", // Include tax if applicable
               shipping: "0.00", // Include shipping if applicable
             },
@@ -161,7 +161,7 @@ const createPaymentPlanRecurring = async (body, paypal) => {
           cycles: "0",
           amount: {
             currency: body.currency,
-            value: body.amount,
+            value: Math.round(body.amount),
           },
         },
       ];
@@ -334,7 +334,7 @@ const createPaymentFixedRecurring = async (body, paypal) => {
           cycles: body.cycles,
           amount: {
             currency: body.currency,
-            value: body.amount,
+            value: Math.round(body.amount),
           },
         },
       ];
@@ -556,7 +556,7 @@ const createPaymentInstallments = async (body, paypal) => {
         cycles: body.cycles.toString(), // Number of regular payments
         amount: {
           currency: body.currency,
-          value: body.amount, // Regular payment amount
+          value: Math.round(body.amount), // Regular payment amount
         },
       });
 

@@ -133,7 +133,7 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
       //%%
       initial_amount =
         parseInt(body.initial_amount, 10) - body.installment_amount;
-      initial_amount = Math.abs(initial_amount);
+      initial_amount = abs(initial_amount);
     } else {
       initial_amount = body.initial_amount;
     }
