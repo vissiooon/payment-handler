@@ -10,7 +10,7 @@ const {
   validateBillingAgreementExecute,
   validateUpdateWebhookUrl,
 } = require("../validation/paypal");
-const axios  = require("axios");
+const axios = require("axios");
 
 const configurePaypal = async (body, paypal) => {
   //validate the body with joi
@@ -375,6 +375,7 @@ const createPaymentFixedRecurring = async (body, paypal) => {
       const payment = await new Promise((resolve, reject) => {
         paypal.billingPlan.create(create_payment_json, (error, payment) => {
           if (error) {
+            console.log(error, "error in package creation ----");
             reject(
               error.response ? error.response.details : "Could not make payment"
             );
@@ -400,6 +401,7 @@ const createPaymentFixedRecurring = async (body, paypal) => {
           billing_plan_update_attributes,
           (error) => {
             if (error) {
+              console.log(error, "error in package creation ---");
               reject(error);
             } else {
               resolve();
@@ -424,6 +426,7 @@ const createPaymentFixedRecurring = async (body, paypal) => {
           billing_agreement_attributes,
           (error, billingAgreement) => {
             if (error) {
+              console.log(error, "error in package creation --");
               reject(
                 error.response
                   ? error.response.details
@@ -446,6 +449,7 @@ const createPaymentFixedRecurring = async (body, paypal) => {
         response: { billingAgreement, link },
       });
     } catch (error) {
+      console.log(error, "error in package creation");
       resolve({ error: true, message: error.message, response: null });
     }
   });
