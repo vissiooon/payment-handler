@@ -220,21 +220,21 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
     const subscriptionObj =
       body.trial_period_days > 0
         ? {
-          customer: body.customer_id,
-          payment_behavior: "allow_incomplete",
-          items: [{ price: recurringPrice.id }],
-          metadata: body.metadata,
-          trial_period_days: body.trial_period_days,
-          default_source: defaultCard.id,
-        }
+            customer: body.customer_id,
+            payment_behavior: "allow_incomplete",
+            items: [{ price: recurringPrice.id }],
+            metadata: body.metadata,
+            trial_period_days: body.trial_period_days,
+            default_source: defaultCard.id,
+          }
         : {
-          customer: body.customer_id,
-          payment_behavior: "allow_incomplete",
-          items: [{ price: recurringPrice.id }],
-          add_invoice_items: [{ price: oneTimePrice.id }],
-          metadata: body.metadata,
-          // default_source: defaultCard.id,
-        };
+            customer: body.customer_id,
+            payment_behavior: "allow_incomplete",
+            items: [{ price: recurringPrice.id }],
+            add_invoice_items: [{ price: oneTimePrice.id }],
+            metadata: body.metadata,
+            // default_source: defaultCard.id,
+          };
 
     // Create the subscription
     const subscription = await stripe.subscriptions.create(subscriptionObj);
@@ -328,7 +328,7 @@ async function CREATE_RECURRING_BASIC_SUBSCRIPTION_ON_STRIPE(
     const price = await new Promise((resolve, reject) => {
       stripe.plans.create(
         {
-          amount: body.unit_amount * 100,
+          amount: Math.round(body.unit_amount * 100),
           currency: body.currency,
           interval: body.interval_time,
           product: product.id,
@@ -572,8 +572,8 @@ const CREATE_ONE_TIME_PAYMENT_ON_STRIPE = async (body, stripe_secret_key) => {
       }
     }
     if (body.tax > 0) {
-      tax = parseFloat((body.amount).toFixed(1)) * (body.tax / 100);
-      body.amount = tax + parseFloat((body.amount).toFixed(1));
+      tax = parseFloat(body.amount.toFixed(1)) * (body.tax / 100);
+      body.amount = tax + parseFloat(body.amount.toFixed(1));
     }
     console.log("Amount after discount: ---------", body.amount);
     // Step 1: Create the product
@@ -596,7 +596,7 @@ const CREATE_ONE_TIME_PAYMENT_ON_STRIPE = async (body, stripe_secret_key) => {
     // Step 2: Create the payment intent
     // console.log(price_amount, "price_amount");
     console.log(body.amount, "body.amount");
-    console.log((Math.round(body.amount * 100) / 100), "value in package----");
+    console.log(Math.round(body.amount * 100) / 100, "value in package----");
     let price_amount = (Math.round(body.amount * 100) / 100) * 100;
     console.log(price_amount, "price_amount");
     const payment = await new Promise((resolve, reject) => {
