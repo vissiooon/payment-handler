@@ -154,8 +154,8 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
               return reject(err);
             }
 
-            let recurringAmount = Math.round(unit_amount * 100);
-            let oneTimeAmount = Math.round(initial_amount * 100); // Assuming one_time_amount is defined
+            let recurringAmount = (Math.round(unit_amount * 100) / 100);
+            let oneTimeAmount = (Math.round(initial_amount * 100) / 100); // Assuming one_time_amount is defined
             console.log("Recurring amount: ---------", recurringAmount);
             console.log("One-time amount: -------------", oneTimeAmount);
             if (body.trial_period_days < 1) {
@@ -446,7 +446,7 @@ const CREATE_RECURRING_FIXED_SUBSCRIPTION_ON_STRIPE = async (
     });
 
     // Step 2: Create a Stripe price for the product
-    let amount = Math.round(unit_amount * 100);
+    let amount = (Math.round(unit_amount * 100) / 100);
 
     const price = await new Promise((resolve, reject) => {
       stripe.prices.create(
@@ -595,13 +595,13 @@ const CREATE_ONE_TIME_PAYMENT_ON_STRIPE = async (body, stripe_secret_key) => {
     });
     // Step 2: Create the payment intent
     let price_amount = parseInt((body.amount).toFixed(1));
-    
-    console.log(Math.round(price_amount * 100), "value in package----");
+
+    console.log((Math.round(price_amount * 100) / 100), "value in package----");
 
     const payment = await new Promise((resolve, reject) => {
       stripe.paymentIntents.create(
         {
-          amount: Math.round(price_amount * 100),
+          amount: (Math.round(price_amount * 100) / 100),
           currency: body.currency,
           customer: body.customer_id,
           description: body.description,
