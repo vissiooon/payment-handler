@@ -140,6 +140,7 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
 
     let unit_amount = body.unit_amount / body.interval_count;
     unit_amount = body.initial_amount - body.unit_amount;
+    unit_amount = Math.abs(unit_amount);
     const { product, recurringPrice, oneTimePrice } = await new Promise(
       (resolve, reject) => {
         // Create the product first
@@ -323,6 +324,11 @@ async function CREATE_RECURRING_BASIC_SUBSCRIPTION_ON_STRIPE(
     });
 
     console.log("Product created successfully: ", product.id);
+    console.log(body.unit_amount, "body.unit_amountbody.unit_amount");
+    console.log(
+      Math.round(body.unit_amount * 100),
+      "body.unit_amountbody.unit_amount"
+    );
 
     // Step 2: Create price/plan based on the product id
     const price = await new Promise((resolve, reject) => {
