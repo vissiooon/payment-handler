@@ -471,7 +471,7 @@ const createPaymentInstallments = async (body, paypal) => {
     if (body.discount_type === "percentage") {
       discountPercentage = amount;
     } else {
-      discountPercentage = (amount / body.amount) * 100;
+      discountPercentage = (amount / body.amount + body.initial_amount) * 100;
     }
 
     console.log(`Discount Percentage: ${discountPercentage.toFixed(2)}%`);
@@ -480,7 +480,7 @@ const createPaymentInstallments = async (body, paypal) => {
     let discountedInitial =
       body.initial_amount * (1 - discountPercentage / 100);
     let discountedInstallmentTotal =
-      (body.amount - body.initial_amount) * (1 - discountPercentage / 100);
+      (body.amount ) * (1 - discountPercentage / 100);
 
     console.log(discountedInitial.toFixed(2), "Discounted initial amount");
     console.log(
@@ -562,7 +562,6 @@ const createPaymentInstallments = async (body, paypal) => {
           },
         });
       }
-
       // Add the REGULAR phase for the initial payment
       payment_definitions.push({
         name:
