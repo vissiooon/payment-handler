@@ -138,9 +138,8 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
       initial_amount = body.initial_amount;
     }
 
-    let unit_amount = body.unit_amount / body.interval_count;
-    unit_amount = body.initial_amount - body.unit_amount;
-    unit_amount = Math.abs(unit_amount);
+    let unit_amount =
+      (body.unit_amount - body.initial_amount) / body.interval_count;
     const { product, recurringPrice, oneTimePrice } = await new Promise(
       (resolve, reject) => {
         // Create the product first
