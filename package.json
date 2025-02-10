@@ -1,6 +1,6 @@
 {
   "name": "payment-handler",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "This package is responsible for handling payments using stripe and paypal",
   "main": "index.js",
   "scripts": {
