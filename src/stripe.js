@@ -138,8 +138,8 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
       initial_amount = body.initial_amount;
     }
 
-    let unit_amount = body.unit_amount / body.interval_count;
-    unit_amount = body.initial_amount - body.unit_amount;
+    let unit_amount =
+      (body.unit_amount - body.initial_amount) / body.interval_count;
     const { product, recurringPrice, oneTimePrice } = await new Promise(
       (resolve, reject) => {
         // Create the product first
@@ -323,6 +323,11 @@ async function CREATE_RECURRING_BASIC_SUBSCRIPTION_ON_STRIPE(
     });
 
     console.log("Product created successfully: ", product.id);
+    console.log(body.unit_amount, "body.unit_amountbody.unit_amount");
+    console.log(
+      Math.round(body.unit_amount * 100),
+      "body.unit_amountbody.unit_amount"
+    );
 
     // Step 2: Create price/plan based on the product id
     const price = await new Promise((resolve, reject) => {
@@ -597,7 +602,7 @@ const CREATE_ONE_TIME_PAYMENT_ON_STRIPE = async (body, stripe_secret_key) => {
     // console.log(price_amount, "price_amount");
     console.log(body.amount, "body.amount");
     console.log(Math.round(body.amount * 100) / 100, "value in package----");
-    let price_amount = (Math.round(body.amount * 100) / 100) * 100;
+    let price_amount = Math.round(Math.abs(body.amount * 100));
     console.log(price_amount, "price_amount");
     const payment = await new Promise((resolve, reject) => {
       stripe.paymentIntents.create(

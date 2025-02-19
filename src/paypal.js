@@ -471,7 +471,7 @@ const createPaymentInstallments = async (body, paypal) => {
     if (body.discount_type === "percentage") {
       discountPercentage = amount;
     } else {
-      discountPercentage = (amount / body.amount) * 100;
+      discountPercentage = (amount / body.amount + body.initial_amount) * 100;
     }
 
     console.log(`Discount Percentage: ${discountPercentage.toFixed(2)}%`);
@@ -480,7 +480,7 @@ const createPaymentInstallments = async (body, paypal) => {
     let discountedInitial =
       body.initial_amount * (1 - discountPercentage / 100);
     let discountedInstallmentTotal =
-      (body.amount - body.initial_amount) * (1 - discountPercentage / 100);
+      (body.amount ) * (1 - discountPercentage / 100);
 
     console.log(discountedInitial.toFixed(2), "Discounted initial amount");
     console.log(
@@ -517,10 +517,30 @@ const createPaymentInstallments = async (body, paypal) => {
     body.amount = body.amount / body.cycles;
   }
 
+  const now = new Date();
+  let interval_days = 1;
   let custom_days = 1;
+
   if (body.frequency == "custom") {
     body.frequency = "DAY";
     custom_days = body.custom_days;
+    interval_days = body.custom_days;
+  } else {
+    if (body.frequency.toUpperCase() == "DAY") {
+      interval_days = 1;
+    } else if (body.frequency.toUpperCase() == "WEEK") {
+      interval_days = 7;
+    } else if (body.frequency.toUpperCase() == "MONTH") {
+      // Add exactly 1 month from the current date
+      const nextMonth = new Date(now);
+      nextMonth.setMonth(nextMonth.getMonth() + 1);
+      interval_days = Math.round((nextMonth - now) / (1000 * 60 * 60 * 24)); // Convert milliseconds to days
+    } else if (body.frequency.toUpperCase() == "YEAR") {
+      // Add exactly 1 year from the current date
+      const nextYear = new Date(now);
+      nextYear.setFullYear(nextYear.getFullYear() + 1);
+      interval_days = Math.round((nextYear - now) / (1000 * 60 * 60 * 24)); // Convert milliseconds to days
+    }
   }
 
   return new Promise(async (resolve) => {
@@ -542,7 +562,6 @@ const createPaymentInstallments = async (body, paypal) => {
           },
         });
       }
-
       // Add the REGULAR phase for the initial payment
       payment_definitions.push({
         name:
@@ -621,10 +640,10 @@ const createPaymentInstallments = async (body, paypal) => {
         );
       });
 
-      // Calculate the start date for recurring payments (1 day after the initial payment)
-      const now = new Date();
-      const oneDayInMillis = 24 * 60 * 60 * 1000;
-      const startDate = new Date(now.getTime() + oneDayInMillis).toISOString();
+      // Calculate the start date for recurring payments
+      const nextBillingDate = new Date(now);
+      nextBillingDate.setDate(now.getDate() + parseInt(interval_days));
+      const startDate = nextBillingDate.toISOString();
 
       // Create the billing agreement
       const billing_agreement_attributes = {
@@ -813,5 +832,5 @@ module.exports = {
   createPaymentInstallments,
   executePayment,
   billingAgreementExecute,
-  updateWebhookUrl
+  updateWebhookUrl,
 };

@@ -131,6 +131,7 @@ const validateInstallmentsPayment = (body) => {
     discount: Joi.number().allow("", null),
     tax: Joi.number().allow("", null),
     custom_days: Joi.number().allow("", null),
+    interval_count: Joi.number().allow("", null),
   });
   const { error } = schema.validate(body);
   if (error) {
