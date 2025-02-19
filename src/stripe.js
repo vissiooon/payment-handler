@@ -668,18 +668,33 @@ const RETRIVE_USER_DEFAULT_CARD_FROM_STRIPE = async (
 
 // ************************************{ADD WEBHOOK URL ON STRIPE}**************************************
 const ADD_WEBHOOK_URL_ON_STRIPE = async (body, stripe_secret_key) => {
-  //validate body with Joi
+  // Validate body with Joi
   let { error, message } = validateAddWebhook(body);
   if (error) {
     return { error: true, message: message, response: null };
   }
+
   try {
     const stripe = require("stripe")(stripe_secret_key);
-    const webhook = await stripe.webhookEndpoints.create({
+
+    // Fetch all existing webhooks
+    const webhooks = await stripe.webhookEndpoints.list({ limit: 100 });
+
+    // Filter out webhooks with the same URL
+    const duplicateWebhooks = webhooks.data.filter(webhook => webhook.url === body.webhook_url);
+
+    // Delete all duplicate webhooks
+    for (const webhook of duplicateWebhooks) {
+      await stripe.webhookEndpoints.del(webhook.id);
+    }
+
+    // Create a new webhook
+    const newWebhook = await stripe.webhookEndpoints.create({
       url: body.webhook_url,
       enabled_events: body.enabled_events,
     });
-    return { error: false, message: "", response: webhook };
+
+    return { error: false, message: "Webhook updated successfully", response: newWebhook };
   } catch (err) {
     return { error: true, message: err.message, response: null };
   }
