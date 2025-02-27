@@ -603,6 +603,7 @@ const CREATE_ONE_TIME_PAYMENT_ON_STRIPE = async (body, stripe_secret_key) => {
     console.log(body.amount, "body.amount");
     console.log(Math.round(body.amount * 100) / 100, "value in package----");
     let price_amount = Math.round(Math.abs(body.amount * 100));
+    price_amount = parseFloat(price_amount.toFixed(2));
     console.log(price_amount, "price_amount");
     const payment = await new Promise((resolve, reject) => {
       stripe.paymentIntents.create(
