@@ -137,9 +137,13 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
     } else {
       initial_amount = body.initial_amount;
     }
-
-    let unit_amount =
-      (body.unit_amount - body.initial_amount) / body.interval_count;
+    console.log("&&&&&&&&&&&&&&&&&&");
+    console.log(body.initial_amount, "body.initial_amount");
+    console.log(body.unit_amount, "body.unit_amount");
+    console.log(body.interval_count, "body.interval_count");
+    let unit_amount = (body.unit_amount - body.initial_amount) / body.interval_count;
+    console.log(unit_amount, "unit_amount");
+    console.log("&&&&&&&&&&&&&&&&&&");
     const { product, recurringPrice, oneTimePrice } = await new Promise(
       (resolve, reject) => {
         // Create the product first
@@ -154,7 +158,7 @@ const CREATE_INSTALLMENT_SUBSRIPTION_ON_STRIPE = async (
               return reject(err);
             }
 
-            let recurringAmount = Math.round(unit_amount * 100);
+            let recurringAmount = Math.round(Math.abs(unit_amount) * 100);
             let oneTimeAmount = Math.round(initial_amount * 100); // Assuming one_time_amount is defined
             console.log("Recurring amount: ---------", recurringAmount);
             console.log("One-time amount: -------------", oneTimeAmount);
